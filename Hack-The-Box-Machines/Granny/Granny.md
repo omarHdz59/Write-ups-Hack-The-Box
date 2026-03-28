@@ -52,7 +52,7 @@ Se ejecutó un escaneo exhaustivo sobre el rango completo de puertos TCP (**0-65
 **Comando ejecutado:**
 
 ```bash
-namp -p- --open -sS --min-rate 5000 -Pn -n 10.129.95.234 
+nmap -p- --open -sS --min-rate 5000 -Pn -n 10.129.95.234 
 ```
 
 **Resultados:**
