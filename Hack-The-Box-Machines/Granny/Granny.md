@@ -3,7 +3,7 @@
 
 # Ficha Técnica
 
-![logo](Hack-The-Box-Machines/EJPT/Granny%20✅/Images/logo.png)
+![logo](../Granny/Images/logo.png)
 
 | **Nombre**            | Granny       |
 | --------------------- | ------------ |
@@ -39,7 +39,7 @@ Se inició la fase de reconocimiento mediante la verificación de la disponibili
 ping -c 4 10.129.95.234
 ```
 
-![ping | 800](Hack-The-Box-Machines/EJPT/Granny%20✅/Images/ping.png)
+![ping | 800](../Granny/Images/ping.png)
 
 **Interpretación Técnica:** El valor de **TTL=127** sugiere que el sistema operativo objetivo es de la familia **Windows** (cuyo valor por defecto es 128), deduciendo la presencia de un salto de red (_hop_) entre el origen y el destino. La ausencia de pérdida de paquetes confirma un canal de comunicación bidireccional óptimo para proceder con las fases de escaneo de puertos y enumeración de servicios.
 
@@ -72,7 +72,7 @@ Una vez se identifico el puerto `80 - Abierto`, se procedió a la enumeración d
 nmap -p80 -sCV 10.129.95.234
 ```
 
-![port-scan | 800 x 300](Hack-The-Box-Machines/EJPT/Granny%20✅/Images/port-scan.png)
+![port-scan | 800 x 300](../Granny/Images/port-scan.png)
 
 ### Análisis de Tecnologías y Superficie de Exposición
 
@@ -158,7 +158,7 @@ dav:/ > move cmdasp.txt cmdasp.aspx    # Cambio de extensión en el servidor
 
 Tras verificar que el bypass de extensión se completó exitosamente, se procedió a validar la funcionalidad de la **Web-Shell**. Para confirmar la **Ejecución Remota de Comandos (RCE)**, se accedió al recurso vía navegador y se ejecutó un comando `ping` hacia el host local. La recepción de la respuesta confirmó el compromiso del servidor y la capacidad de interactuar con el sistema operativo subyacente.
 
-![ASPX | 800](cmd-aspx.png)
+![ASPX | 800](../Granny/Images/cmd-aspx.png)
 
 
 ---
@@ -199,9 +199,9 @@ Se logró el acceso inicial al sistema; sin embargo, los privilegios de la cuent
 
 Debido a estas restricciones de permisos, el siguiente paso operativo consiste en una **Escalada de Privilegios** para elevar el contexto de seguridad en el host.
 
-![Acceso](Hack-The-Box-Machines/EJPT/Granny%20✅/Images/access.png)
+![Acceso](../Granny/Images/access.png)
 
-![no-flag | 800](no-flag.png)
+![no-flag | 800](../Granny/Images/no-flag.png)
 
 
 ---
@@ -218,7 +218,7 @@ La presencia de este privilegio confirma una vulnerabilidad de **Token Impersona
 
 Esta técnica permitirá interceptar una autenticación de servicio con altos privilegios para ejecutar un payload arbitrario en un contexto de seguridad superior.
 
-![escalation | 800](escalation.png)
+![escalation | 800](../Granny/Images/escalation.png)
 
 Durante la fase de preparación, se identificó una incompatibilidad crítica: el binario **JuicyPotato.exe** no cuenta con soporte nativo para la arquitectura y versión del sistema objetivo (**Windows Server 2003 x86**). Al tratarse de un sistema legado, las restricciones en el modelo de objetos componentes (COM) difieren de las versiones modernas.
 
@@ -252,12 +252,12 @@ La ejecución fue exitosa, otorgando una shell con el contexto de seguridad máx
 
 1. **User Flag:** Ubicada en el directorio personal de `Lakis`.
 
-![user-flag | 800](Hack-The-Box-Machines/EJPT/Granny%20✅/Images/user-flag.png)
+![user-flag | 800](../Granny/Images/user-flag.png)
 
 
 2. **Root Flag:** Ubicada en el escritorio del Administrador.
 
-![root-flag | 800](Hack-The-Box-Machines/EJPT/Granny%20✅/Images/root-flag.png)
+![root-flag | 800](../Granny/Images/root-flag.png)
 
 **Estado del Objetivo:** Comprometido exitosamente.
 
