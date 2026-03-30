@@ -3,7 +3,7 @@
 
 # Ficha técnica 
 
-![logo](GoodGames/Images/logo.png)
+![logo](../GoodGames/Images/logo.png)
 
 | **Campo**                | **Detalle**           |
 | ------------------------ | --------------------- |
@@ -165,7 +165,7 @@ Se procedió a alterar el parámetro de autenticación mediante una **Inyección
     - El doble guion y espacio (`-- -`) comenta el resto de la sentencia SQL original, invalidando cualquier verificación posterior de contraseña.
 
 
-![burp](../GoodGames/Images/burp.png)
+![burp | 800](../GoodGames/Images/burp.png)
 
 #### Resultado de la Ejecución
 
