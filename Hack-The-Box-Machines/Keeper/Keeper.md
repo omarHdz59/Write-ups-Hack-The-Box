@@ -3,7 +3,7 @@
 
 # Ficha técnica
 
-![KeePer](KeePer.png)
+![KeePer](../Keeper/Images/KeePer.png)
 
 | **Campo**                | **Detalle**                                                                                                                                                                                                                                                              |
 | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -148,7 +148,7 @@ Al ingresar a la página web principal, solo se visualiza el mensaje que redirig
 
 Tras realizar una búsqueda de las credenciales por defecto de la aplicación, se identificó el par **`root:password`**. Al probarlas en el panel de inicio de sesión, estas resultaron ser válidas, otorgando acceso inmediato al panel de administración del sitio.
 
-![login | 800](login.png)
+![login | 800](../Keeper/Images/login.png)
 
 ### Enumeración de Usuarios y Credenciales
 
@@ -179,7 +179,7 @@ Tras realizar las pruebas de reutilización de credenciales en el servicio SSH (
 
 De este modo, se logró una intrusión limpia y discreta en la máquina objetivo mediante SSH, obteniendo acceso al sistema como un usuario legítimo y sin la necesidad de explotar vulnerabilidades de software o generar alertas innecesarias en la red.
 
-![ssh-access | 800](ssh-access.png)
+![ssh-access | 800](../Keeper/Images/ssh-access.png)
 
 ---
 
@@ -289,7 +289,7 @@ sudo apt update && sudo apt install keepassxc
 
 Una vez instalada la herramienta, se inició su interfaz gráfica (GUI). Desde el menú superior, se navegó a **Base de datos > Abrir base de datos**, seleccionando el archivo correspondiente desde la ruta de almacenamiento para iniciar el proceso de autenticación.
 
-![database | 800](database.png)
+![database | 800](../Keeper/Images/database.png)
 
 ### Resultados obtenidos
 
@@ -387,7 +387,7 @@ Al ejecutar el comando, el servidor validó la firma de la clave privada de form
 
 Con este nivel de privilegios máximos dentro del sistema, se procedió a visualizar el archivo de la directiva de administración final (`root.txt`), obteniendo la última _flag_ y concluyendo con éxito la auditoría y resolución de este reto CTF.
 
-![root | 800](root.png)
+![root | 800](../Keeper/Images/root.png)
 
 ----
 
